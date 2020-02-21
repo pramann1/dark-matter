@@ -63,7 +63,7 @@ print "Team 7 below is the list of suspected vulnerabilites to look at:\n" + str
 #buffers = filter(None,os.popen('objdump -d ' +sys.argv[1]+ ' | grep -oP "(?<=buf    .)....(?=,%esp)"').read()).split('\n')	
 #buffers.sort()
 #buffers = list(set(filter(None, buf)))
-buffers= os.popen('objdump -d scanf | grep -P "^<*(?=.*(>:))"').read()
+buffers= os.popen('objdump -d '+sys.argv[1]+  ' | grep -P "^<*(?=.*(>:))"').read()
 buffers= buffers.split("\n")
 buffers= list(filter(lambda x: not "@" in x, buffers))
 buffers.sort()
