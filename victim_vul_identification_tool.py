@@ -60,10 +60,16 @@ vulnerabilities = list(set(filter(None, vulnerabilities)))
 print "Team 7 below is the list of suspected vulnerabilites to look at:\n" + str(vulnerabilities)
 
 
-buffers = filter(None,os.popen('objdump -d ' +sys.argv[1]+ ' | grep -oP "(?<=buf    .)....(?=,%esp)"').read()).split('\n')	
+#buffers = filter(None,os.popen('objdump -d ' +sys.argv[1]+ ' | grep -oP "(?<=buf    .)....(?=,%esp)"').read()).split('\n')	
+#buffers.sort()
+#buffers = list(set(filter(None, buf)))
+buffers= os.popen('objdump -d scanf | grep -P "^<*(?=.*(>:))"').read()
+buffers= buffers.split("\n")
+buffers= list(filter(lambda x: not "@" in x, buffers))
 buffers.sort()
-buffers = list(set(filter(None, buf)))
-	
+print(buffers)
+buffers = list(set(filter(None, buffers)))
+
 for suspect_func in vulnerabilities:
 
 	if suspect_func == "gets":
