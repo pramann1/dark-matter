@@ -49,11 +49,12 @@ while True:
             if file.endswith(".txt"):
                 f = open(os.path.join(subdir, file), 'r')
                 flags = []
-                for line in f:
-                    try:
+                try:
+                    for line in f:
                         submitFlags((processLine(line)))
-                    except Exception:
-                        print('Error reading line')
+                except Exception:
+                    os.remove(os.path.join(subdir, file))
+                    print('Error reading line')
                 f.close()
                 move(os.path.join(subdir, file), 'archivedFlags\\archived_' + file)
                 # os.remove(os.path.join(subdir, file))
