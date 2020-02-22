@@ -23,10 +23,11 @@ def submitFlags(flags):
     correct = 0
     flagResponse = []
     try:
+        print(flags)
         flagResponse = t.submit_flag(flags)
+        # flagResponse = submitStub(flags)
     except Exception:
         print ("Error submitting flags.")
-    #flagResponse = submitStub(flags)
     for response in flagResponse:
         if response.startswith('correct'):
             correct = correct + 1
@@ -34,11 +35,12 @@ def submitFlags(flags):
 
 
 def processLine(line):
-    pruneString = line.split(".")
-    if(len(pruneString) > 0):
-        flag = pruneString[0].split("_")
-        if len(flag) > 1 and flag[1]:
-            return flag[1]
+    newList = []
+    pruneString = line.split("FLG")
+    for x in pruneString:
+        newList.append('FLG' + x)
+    return newList
+
 
 directory = os.path.normpath("flags")
 while True:
@@ -48,8 +50,7 @@ while True:
                 f = open(os.path.join(subdir, file), 'r')
                 flags = []
                 for line in f:
-                    flags.append(processLine(line))
-                submitFlags(flags)
+                    submitFlags((processLine(line)))
                 f.close()
                 move(os.path.join(subdir, file), 'archivedFlags\\archived_' + file)
                 # os.remove(os.path.join(subdir, file))
