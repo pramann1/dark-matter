@@ -50,7 +50,10 @@ while True:
                 f = open(os.path.join(subdir, file), 'r')
                 flags = []
                 for line in f:
-                    submitFlags((processLine(line)))
+                    try:
+                        submitFlags((processLine(line)))
+                    except Exception:
+                        print('Error reading line')
                 f.close()
                 move(os.path.join(subdir, file), 'archivedFlags\\archived_' + file)
                 # os.remove(os.path.join(subdir, file))
